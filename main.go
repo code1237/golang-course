@@ -1,1 +1,8 @@
-package golang_course
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello World")
+
+}
