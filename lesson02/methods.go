@@ -1,5 +1,10 @@
 package lesson02
 
+import (
+	"math"
+	"strconv"
+)
+
 func IsPrime(n int) bool {
 	if n <= 1 {
 		return false
@@ -37,4 +42,16 @@ func FibonacciIterative(n int) int {
 	}
 
 	return current
+}
+
+func Increment(num string) int {
+	strLen := len(num)
+	decimal := 0
+
+	for i := 0; i < strLen; i++ {
+		curMultiplier, _ := strconv.Atoi(string(num[i]))
+		decimal += curMultiplier * int(math.Pow(2, float64(strLen-1-i)))
+	}
+
+	return decimal + 1
 }
