@@ -1,8 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"golang-course/lesson02"
+)
 
 func main() {
-	fmt.Println("Hello World")
-
+	fmt.Println(lesson02.FibonacciIterative(4))
+	fmt.Println(lesson02.IsPrime(7))
 }
