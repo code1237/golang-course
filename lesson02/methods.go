@@ -83,3 +83,23 @@ func IsBinaryPalindrome(n int) bool {
 
 	return Increment(binaryStr) == Increment(reversedStringBuilder.String())
 }
+
+func ValidParentheses(s string) bool {
+	strLen := len(s)
+
+	if strLen%2 != 0 {
+		return false
+	}
+
+	allowedPairs := "(){}[]"
+
+	for i := 0; i < strLen/2; i++ {
+		tempPair := string(s[i]) + string(s[strLen-1-i])
+
+		if strings.Index(allowedPairs, tempPair) == -1 {
+			return false
+		}
+	}
+
+	return true
+}
