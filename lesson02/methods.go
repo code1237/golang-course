@@ -105,16 +105,40 @@ func IsBinaryPalindromeWithoutBuilder(n int) bool {
 }
 
 func ValidParentheses(s string) bool {
-	strLen := len(s)
+	var filteredStr string
+	allowedPairs := "(){}[]"
 
-	if strLen%2 != 0 {
+	for i := 0; i < len(s); i++ {
+		if strings.Index(allowedPairs, string(s[i])) != -1 {
+			filteredStr += string(s[i])
+		}
+	}
+
+	filteredStrLen := len(filteredStr)
+
+	if filteredStrLen%2 != 0 {
 		return false
 	}
 
-	allowedPairs := "(){}[]"
+	var strWithoutPairs string
 
-	for i := 0; i < strLen/2; i++ {
-		tempPair := string(s[i]) + string(s[strLen-1-i])
+	for i := 0; i < filteredStrLen-1; i++ {
+		tempStr := string(filteredStr[i]) + string(filteredStr[i+1])
+
+		if strings.Index(allowedPairs, tempStr) == -1 {
+			strWithoutPairs += string(filteredStr[i])
+			if (i + 1) == filteredStrLen-1 {
+				strWithoutPairs += string(filteredStr[i+1])
+			}
+		} else {
+			i = i + 1
+		}
+	}
+
+	strWithoutPairsLen := len(strWithoutPairs)
+
+	for i := 0; i < strWithoutPairsLen/2; i++ {
+		tempPair := string(strWithoutPairs[i]) + string(strWithoutPairs[strWithoutPairsLen-1-i])
 
 		if strings.Index(allowedPairs, tempPair) == -1 {
 			return false
