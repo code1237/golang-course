@@ -106,10 +106,9 @@ func IsBinaryPalindromeWithoutBuilder(n int) bool {
 
 func ValidParentheses(s string) bool {
 	var filteredStr string
-	allowedPairs := "(){}[]"
 
 	for i := 0; i < len(s); i++ {
-		if strings.Index(allowedPairs, string(s[i])) != -1 {
+		if strings.Index("(){}[]", string(s[i])) != -1 {
 			filteredStr += string(s[i])
 		}
 	}
@@ -121,6 +120,8 @@ func ValidParentheses(s string) bool {
 	}
 
 	var strWithoutPairs string
+
+	allowedPairs := "() {} []"
 
 	for i := 0; i < filteredStrLen-1; i++ {
 		tempStr := string(filteredStr[i]) + string(filteredStr[i+1])
