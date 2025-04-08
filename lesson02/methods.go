@@ -26,7 +26,7 @@ func IsPrime(n int) bool {
 
 func FibonacciIterative(n int) int {
 	if n < 1 {
-		panic("n must be greater than zero")
+		return 0
 	}
 
 	if n == 1 {
@@ -47,7 +47,7 @@ func FibonacciIterative(n int) int {
 
 func FibonacciRecursive(n int) int {
 	if n < 1 {
-		panic("n must be greater than zero")
+		return 0
 	}
 
 	if n == 1 {
@@ -71,6 +71,11 @@ func Increment(num string) int {
 	return decimal + 1
 }
 
+func IncrementWithStrConv(num string) int {
+	intDecimal, _ := strconv.ParseInt(num, 2, 64)
+	return int(intDecimal) + 1
+}
+
 func IsBinaryPalindrome(n int) bool {
 	binaryStr := strconv.FormatInt(int64(n), 2)
 	strLen := len(binaryStr)
@@ -82,6 +87,21 @@ func IsBinaryPalindrome(n int) bool {
 	}
 
 	return Increment(binaryStr) == Increment(reversedStringBuilder.String())
+}
+
+func IsBinaryPalindromeWithoutBuilder(n int) bool {
+	binaryStr := strconv.FormatInt(int64(n), 2)
+	strLen := len(binaryStr)
+
+	binaryStrRune := []rune(binaryStr)
+	reversedStrRune := []rune(binaryStr)
+
+	for i := 0; i < strLen/2; i++ {
+		reversedStrRune[i] = binaryStrRune[strLen-i-1]
+		reversedStrRune[strLen-i-1] = binaryStrRune[i]
+	}
+
+	return Increment(binaryStr) == Increment(string(reversedStrRune))
 }
 
 func ValidParentheses(s string) bool {
