@@ -14,10 +14,10 @@ func main() {
 	fmt.Println(lesson02.IncrementWithStrConv("11111"))
 	fmt.Println(lesson02.IsBinaryPalindrome(7))
 	fmt.Println(lesson02.IsBinaryPalindromeWithoutBuilder(7))
-	fmt.Println(lesson02.ValidParentheses("{()}"))
-	fmt.Println(lesson02.ValidParentheses("(){}[]"))
-	fmt.Println(lesson02.ValidParentheses("(){[}}[]"))
-	fmt.Println(lesson02.ValidParentheses("(){][]"))
-	fmt.Println(lesson02.ValidParentheses("func() { return fmt.Println(len([]int{1,2,3}))}"))
-	fmt.Println(lesson02.ValidParentheses("func() { return fmt.Println(len)([]int{1,2,3}))}"))
+	fmt.Println(lesson02.ValidParentheses("{()}"))                                             //true
+	fmt.Println(lesson02.ValidParentheses("(){}[]"))                                           //true
+	fmt.Println(lesson02.ValidParentheses("(){[}}[]"))                                         //false
+	fmt.Println(lesson02.ValidParentheses("(){][]"))                                           //false
+	fmt.Println(lesson02.ValidParentheses("func() { return fmt.Println(len([]int{1,2,3}))}"))  //true
+	fmt.Println(lesson02.ValidParentheses("func() { return fmt.Println(len)([]int{1,2,3}))}")) //false
 }
