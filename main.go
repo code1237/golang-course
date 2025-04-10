@@ -2,22 +2,41 @@ package main
 
 import (
 	"fmt"
-	"golang-course/lesson02"
+	documentstore "golang-course/document_store"
 )
 
 func main() {
-	fmt.Println(lesson02.FibonacciIterative(10))
-	fmt.Println(lesson02.FibonacciRecursive(10))
-	fmt.Println(lesson02.IsPrime(9))
-	fmt.Println(lesson02.IsPrime(3))
-	fmt.Println(lesson02.Increment("11111"))
-	fmt.Println(lesson02.IncrementWithStrConv("11111"))
-	fmt.Println(lesson02.IsBinaryPalindrome(7))
-	fmt.Println(lesson02.IsBinaryPalindromeWithoutBuilder(7))
-	fmt.Println(lesson02.ValidParentheses("{()}"))                                             //true
-	fmt.Println(lesson02.ValidParentheses("(){}[]"))                                           //true
-	fmt.Println(lesson02.ValidParentheses("(){[}}[]"))                                         //false
-	fmt.Println(lesson02.ValidParentheses("(){][]"))                                           //false
-	fmt.Println(lesson02.ValidParentheses("func() { return fmt.Println(len([]int{1,2,3}))}"))  //true
-	fmt.Println(lesson02.ValidParentheses("func() { return fmt.Println(len)([]int{1,2,3}))}")) //false
+	docString := documentstore.Document{
+		Fields: map[string]documentstore.DocumentField{
+			"key": {
+				Type:  documentstore.DocumentFieldTypeString,
+				Value: "test",
+			},
+		},
+	}
+
+	docBool := documentstore.Document{
+		Fields: map[string]documentstore.DocumentField{
+			"key": {
+				Type:  documentstore.DocumentFieldTypeBool,
+				Value: true,
+			},
+		},
+	}
+
+	documentstore.Put(docString)
+	documentstore.Put(docBool)
+
+	fmt.Println("Length of document Store: ", documentstore.Length())
+
+	if _, ok := documentstore.Get("1"); ok {
+		fmt.Println("Document by key 1 was found")
+	}
+
+	if ok := documentstore.Delete("1"); ok {
+		fmt.Println("Document by key 1 was deleted. Length of document Store: ", documentstore.Length())
+	}
+
+	documentsList := documentstore.List()
+	fmt.Println(documentsList)
 }
