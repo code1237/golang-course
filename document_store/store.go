@@ -1,9 +1,5 @@
 package documentstore
 
-import (
-	"strconv"
-)
-
 type DocumentFieldType string
 
 const (
@@ -26,9 +22,10 @@ type Document struct {
 var documents = map[string]Document{}
 
 func Put(doc Document) {
-	for _, field := range doc.Fields {
-		if field.Type == DocumentFieldTypeString {
-			documents[strconv.Itoa(len(documents)+1)] = doc
+	for key, field := range doc.Fields {
+		if key == "key" && field.Type == DocumentFieldTypeString {
+			valueAsString := field.Value.(string)
+			documents[valueAsString] = doc
 			break
 		}
 	}
@@ -52,10 +49,10 @@ func Delete(key string) bool {
 }
 
 func List() []Document {
-	var documentsSlice []Document
+	documentsSlice := make([]Document, 0, len(documents))
 
-	for _, document := range documents {
-		documentsSlice = append(documentsSlice, document)
+	for _, doc := range documents {
+		documentsSlice = append(documentsSlice, doc)
 	}
 
 	return documentsSlice

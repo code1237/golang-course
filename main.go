@@ -6,35 +6,49 @@ import (
 )
 
 func main() {
-	docString := documentstore.Document{
+	const PrimaryKey string = "1"
+
+	validDocument := documentstore.Document{
 		Fields: map[string]documentstore.DocumentField{
 			"key": {
 				Type:  documentstore.DocumentFieldTypeString,
-				Value: "test",
+				Value: PrimaryKey,
+			},
+			"name": {
+				Type:  documentstore.DocumentFieldTypeString,
+				Value: "Gopher",
+			},
+			"isVerified": {
+				Type:  documentstore.DocumentFieldTypeBool,
+				Value: false,
 			},
 		},
 	}
 
-	docBool := documentstore.Document{
+	documentWithoutKey := documentstore.Document{
 		Fields: map[string]documentstore.DocumentField{
-			"key": {
+			"name": {
+				Type:  documentstore.DocumentFieldTypeString,
+				Value: "Golang",
+			},
+			"isVerified": {
 				Type:  documentstore.DocumentFieldTypeBool,
 				Value: true,
 			},
 		},
 	}
 
-	documentstore.Put(docString)
-	documentstore.Put(docBool)
+	documentstore.Put(validDocument)
+	documentstore.Put(documentWithoutKey)
 
-	fmt.Println("Length of document Store: ", documentstore.Length())
+	fmt.Printf("Length of document Store: %d\n", documentstore.Length())
 
-	if _, ok := documentstore.Get("1"); ok {
-		fmt.Println("Document by key 1 was found")
+	if _, ok := documentstore.Get(PrimaryKey); ok {
+		fmt.Printf("Document by key %s was found\n", PrimaryKey)
 	}
 
-	if ok := documentstore.Delete("1"); ok {
-		fmt.Println("Document by key 1 was deleted. Length of document Store: ", documentstore.Length())
+	if ok := documentstore.Delete(PrimaryKey); ok {
+		fmt.Printf("Document by key %s was deleted. Length of document Store: %d\n", PrimaryKey, documentstore.Length())
 	}
 
 	documentsList := documentstore.List()
