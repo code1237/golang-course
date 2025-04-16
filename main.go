@@ -2,22 +2,55 @@ package main
 
 import (
 	"fmt"
-	"golang-course/lesson02"
+	documentstore "golang-course/document_store"
 )
 
 func main() {
-	fmt.Println(lesson02.FibonacciIterative(10))
-	fmt.Println(lesson02.FibonacciRecursive(10))
-	fmt.Println(lesson02.IsPrime(9))
-	fmt.Println(lesson02.IsPrime(3))
-	fmt.Println(lesson02.Increment("11111"))
-	fmt.Println(lesson02.IncrementWithStrConv("11111"))
-	fmt.Println(lesson02.IsBinaryPalindrome(7))
-	fmt.Println(lesson02.IsBinaryPalindromeWithoutBuilder(7))
-	fmt.Println(lesson02.ValidParentheses("{()}"))                                             //true
-	fmt.Println(lesson02.ValidParentheses("(){}[]"))                                           //true
-	fmt.Println(lesson02.ValidParentheses("(){[}}[]"))                                         //false
-	fmt.Println(lesson02.ValidParentheses("(){][]"))                                           //false
-	fmt.Println(lesson02.ValidParentheses("func() { return fmt.Println(len([]int{1,2,3}))}"))  //true
-	fmt.Println(lesson02.ValidParentheses("func() { return fmt.Println(len)([]int{1,2,3}))}")) //false
+	const PrimaryKey string = "1"
+
+	validDocument := documentstore.Document{
+		Fields: map[string]documentstore.DocumentField{
+			"key": {
+				Type:  documentstore.DocumentFieldTypeString,
+				Value: PrimaryKey,
+			},
+			"name": {
+				Type:  documentstore.DocumentFieldTypeString,
+				Value: "Gopher",
+			},
+			"isVerified": {
+				Type:  documentstore.DocumentFieldTypeBool,
+				Value: false,
+			},
+		},
+	}
+
+	documentWithoutKey := documentstore.Document{
+		Fields: map[string]documentstore.DocumentField{
+			"name": {
+				Type:  documentstore.DocumentFieldTypeString,
+				Value: "Golang",
+			},
+			"isVerified": {
+				Type:  documentstore.DocumentFieldTypeBool,
+				Value: true,
+			},
+		},
+	}
+
+	documentstore.Put(validDocument)
+	documentstore.Put(documentWithoutKey)
+
+	fmt.Printf("Length of document Store: %d\n", documentstore.Length())
+
+	if _, ok := documentstore.Get(PrimaryKey); ok {
+		fmt.Printf("Document by key %s was found\n", PrimaryKey)
+	}
+
+	if ok := documentstore.Delete(PrimaryKey); ok {
+		fmt.Printf("Document by key %s was deleted. Length of document Store: %d\n", PrimaryKey, documentstore.Length())
+	}
+
+	documentsList := documentstore.List()
+	fmt.Println(documentsList)
 }
