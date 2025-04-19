@@ -22,7 +22,7 @@ func (s *Store) CreateCollection(name string, cfg *CollectionConfig) (bool, *Col
 	}
 
 	newCollection := &Collection{
-		cfg,
+		*cfg,
 		name,
 		make(map[string]Document),
 	}

@@ -1,7 +1,7 @@
 package documentstore
 
 type Collection struct {
-	*CollectionConfig
+	cfg       CollectionConfig
 	Name      string
 	documents map[string]Document
 }
@@ -11,23 +11,23 @@ type CollectionConfig struct {
 }
 
 func (s *Collection) Put(doc Document) {
-	for key, field := range doc.Fields {
-		if key != s.PrimaryKey {
-			continue
-		}
+	field, ok := doc.Fields[s.cfg.PrimaryKey]
 
-		if field.Type != DocumentFieldTypeString {
-			return
-		}
-
-		valueAsString, ok := field.Value.(string)
-		if !ok || len(valueAsString) == 0 {
-			return
-		}
-
-		s.documents[valueAsString] = doc
+	if !ok {
 		return
 	}
+
+	if field.Type != DocumentFieldTypeString {
+		return
+	}
+
+	valueAsString, ok := field.Value.(string)
+	if !ok || len(valueAsString) == 0 {
+		return
+	}
+
+	s.documents[valueAsString] = doc
+	return
 }
 
 func (s *Collection) Get(key string) (*Document, bool) {
