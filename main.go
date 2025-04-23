@@ -2,17 +2,35 @@ package main
 
 import (
 	"fmt"
-	documentstore "golang-course/document_store"
+	"golang-course/documentstore"
+)
+
+const (
+	PrimaryKey          string = "id"
+	PrimaryKeyValue     string = "1"
+	CollectionUsersName string = "users"
 )
 
 func main() {
-	const PrimaryKey string = "1"
+	store := documentstore.NewStore()
+
+	ok, _ := store.CreateCollection(CollectionUsersName, &documentstore.CollectionConfig{PrimaryKey: PrimaryKey})
+
+	if ok {
+		fmt.Printf("New collection created: %s\n", CollectionUsersName)
+	}
+
+	usersCollection, ok := store.GetCollection(CollectionUsersName)
+
+	if ok {
+		fmt.Printf("Collection was found in store by name %s\n", CollectionUsersName)
+	}
 
 	validDocument := documentstore.Document{
 		Fields: map[string]documentstore.DocumentField{
-			"key": {
+			PrimaryKey: {
 				Type:  documentstore.DocumentFieldTypeString,
-				Value: PrimaryKey,
+				Value: PrimaryKeyValue,
 			},
 			"name": {
 				Type:  documentstore.DocumentFieldTypeString,
@@ -23,6 +41,12 @@ func main() {
 				Value: false,
 			},
 		},
+	}
+
+	usersCollection.Put(validDocument)
+
+	if _, ok := usersCollection.Get(PrimaryKeyValue); ok {
+		fmt.Printf("Document was found in collection %s by primary key %s\n", usersCollection.Name, PrimaryKeyValue)
 	}
 
 	documentWithoutKey := documentstore.Document{
@@ -38,19 +62,19 @@ func main() {
 		},
 	}
 
-	documentstore.Put(validDocument)
-	documentstore.Put(documentWithoutKey)
+	usersCollection.Put(documentWithoutKey)
 
-	fmt.Printf("Length of document Store: %d\n", documentstore.Length())
+	fmt.Printf("Current length of collection %s: %d\n", usersCollection.Name, len(usersCollection.List()))
 
-	if _, ok := documentstore.Get(PrimaryKey); ok {
-		fmt.Printf("Document by key %s was found\n", PrimaryKey)
+	if usersCollection.Delete(PrimaryKeyValue) {
+		fmt.Printf("Document was found and deleted in collection %s by primary key %s\n", usersCollection.Name, PrimaryKeyValue)
+		fmt.Printf("Current length of collection %s: %d\n", usersCollection.Name, len(usersCollection.List()))
+	} else {
+		fmt.Printf("Document was not found in collection %s by primary key %s\n", usersCollection.Name, PrimaryKeyValue)
 	}
 
-	if ok := documentstore.Delete(PrimaryKey); ok {
-		fmt.Printf("Document by key %s was deleted. Length of document Store: %d\n", PrimaryKey, documentstore.Length())
+	if store.DeleteCollection(CollectionUsersName) {
+		fmt.Printf("Deleted collection: %s\n", CollectionUsersName)
 	}
 
-	documentsList := documentstore.List()
-	fmt.Println(documentsList)
 }
