@@ -1,4 +1,4 @@
-package documentstore
+package document_store
 
 type Store struct {
 	collections map[string]*Collection
@@ -12,13 +12,13 @@ func NewStore() *Store {
 	return store
 }
 
-func (s *Store) CreateCollection(name string, cfg *CollectionConfig) (bool, *Collection) {
+func (s *Store) CreateCollection(name string, cfg *CollectionConfig) (error, *Collection) {
 	if len(name) == 0 {
 		panic("Collection name must not be empty")
 	}
 
 	if _, ok := s.collections[name]; ok {
-		return false, nil
+		return ErrCollectionAlreadyExists, nil
 	}
 
 	newCollection := &Collection{
@@ -29,19 +29,24 @@ func (s *Store) CreateCollection(name string, cfg *CollectionConfig) (bool, *Col
 
 	s.collections[name] = newCollection
 
-	return true, newCollection
+	return nil, newCollection
 }
 
-func (s *Store) GetCollection(name string) (*Collection, bool) {
+func (s *Store) GetCollection(name string) (*Collection, error) {
 	collection, ok := s.collections[name]
-	return collection, ok
-}
 
-func (s *Store) DeleteCollection(name string) bool {
-	if _, ok := s.collections[name]; ok {
-		delete(s.collections, name)
-		return true
+	if !ok {
+		return nil, ErrCollectionNotFound
 	}
 
-	return false
+	return collection, nil
+}
+
+func (s *Store) DeleteCollection(name string) error {
+	if _, ok := s.collections[name]; ok {
+		delete(s.collections, name)
+		return nil
+	}
+
+	return ErrCollectionNotFound
 }
