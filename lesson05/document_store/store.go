@@ -14,7 +14,7 @@ func NewStore() *Store {
 
 func (s *Store) CreateCollection(name string, cfg *CollectionConfig) (error, *Collection) {
 	if len(name) == 0 {
-		panic("Collection name must not be empty")
+		return ErrCollectionNameCantBeEmpty, nil
 	}
 
 	if _, ok := s.collections[name]; ok {

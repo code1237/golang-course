@@ -2,6 +2,7 @@ package users
 
 import (
 	"errors"
+	"fmt"
 	"golang-course/lesson05/document_store"
 )
 
@@ -11,8 +12,6 @@ var (
 )
 
 const (
-	PrimaryKey          string = "id"
-	PrimaryKeyValue     string = "1"
 	CollectionUsersName string = "users"
 )
 
@@ -26,15 +25,17 @@ type Service struct {
 }
 
 func NewService(store *document_store.Store) *Service {
-	if coll, err := store.GetCollection(CollectionUsersName); err == nil {
-		service := &Service{
-			coll: coll,
-		}
+	coll, err := store.GetCollection(CollectionUsersName)
 
-		return service
+	if err != nil {
+		panic(fmt.Errorf("%w:%s during creation of users service", err, CollectionUsersName))
 	}
 
-	return nil
+	service := &Service{
+		coll: coll,
+	}
+
+	return service
 }
 
 func (s *Service) CreateUser(user User) (*User, error) {
@@ -53,14 +54,33 @@ func (s *Service) CreateUser(user User) (*User, error) {
 	return &user, nil
 }
 
-//func (s *Service) ListUsers() ([]User, error) {
-//	// ...
-//}
+func (s *Service) ListUsers() ([]User, error) {
+	docs := s.coll.List()
+
+	if len(docs) == 0 {
+		return nil, nil
+	}
+
+	users := make([]User, 0, len(docs))
+
+	for _, doc := range docs {
+		tempUser := &User{}
+		err := document_store.UnmarshalDocument(&doc, tempUser)
+
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, *tempUser)
+	}
+
+	return users, nil
+}
 
 func (s *Service) GetUser(userID string) (*User, error) {
 	doc, err := s.coll.Get(userID)
 	if err != nil {
-		return nil, ErrUserNotFound
+		return nil, fmt.Errorf("%w by id%s", ErrUserNotFound, userID)
 	}
 
 	user := &User{}

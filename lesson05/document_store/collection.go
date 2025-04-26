@@ -3,8 +3,9 @@ package document_store
 import "errors"
 
 var (
-	ErrCollectionAlreadyExists = errors.New("collection already exists")
-	ErrCollectionNotFound      = errors.New("collection not found")
+	ErrCollectionAlreadyExists   = errors.New("collection already exists")
+	ErrCollectionNotFound        = errors.New("collection not found")
+	ErrCollectionNameCantBeEmpty = errors.New("collection name can not be empty")
 )
 
 type Collection struct {

@@ -9,10 +9,17 @@ import (
 const (
 	PrimaryKey          string = "id"
 	PrimaryKeyValue     string = "1"
+	PrimaryKeyValueTwo  string = "2"
 	CollectionUsersName string = "users"
 )
 
 func main() {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in", r)
+		}
+	}()
+
 	store := documentstore.NewStore()
 
 	err, _ := store.CreateCollection(CollectionUsersName, &documentstore.CollectionConfig{PrimaryKey: PrimaryKey})
@@ -29,14 +36,45 @@ func main() {
 
 	usersService := users.NewService(store)
 
-	_, err = usersService.CreateUser(users.User{ID: PrimaryKeyValue, Name: "Go"})
+	testUsers := []users.User{
+		{ID: PrimaryKeyValue, Name: "Go"},
+		{ID: PrimaryKeyValueTwo, Name: "Go2"},
+	}
+
+	for _, user := range testUsers {
+		if _, err = usersService.CreateUser(user); err != nil {
+			fmt.Printf("Failed to create user: %s\n", user.Name)
+			return
+		}
+	}
+
+	usersList, err := usersService.ListUsers()
 
 	if err != nil {
-		return
+		fmt.Printf("Failed to list users: %s\n", err)
 	}
 
-	if user, ok := usersService.GetUser(PrimaryKeyValue); ok == nil {
-		fmt.Printf("Document was found in collection %s by primary key %s\n", users.CollectionUsersName, PrimaryKeyValue)
-		fmt.Printf("%+v\n", *user)
+	fmt.Printf("%+v\n", usersList)
+
+	for _, user := range testUsers {
+		if _, err = usersService.GetUser(user.ID); err != nil {
+			fmt.Println("Failed to get user:", err)
+			return
+		}
 	}
+
+	for _, user := range testUsers {
+		if err = usersService.DeleteUser(user.ID); err != nil {
+			fmt.Printf("Failed to delete user by id: %s\n", user.ID)
+			return
+		}
+	}
+
+	usersList, err = usersService.ListUsers()
+
+	if err != nil {
+		fmt.Printf("Failed to list users: %s\n", err)
+	}
+
+	fmt.Printf("%+v\n", usersList)
 }
