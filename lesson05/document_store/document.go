@@ -6,7 +6,8 @@ import (
 )
 
 var (
-	ErrDocumentNotFound = errors.New("document not found")
+	ErrDocumentNotFound         = errors.New("document not found")
+	ErrUnsupportedDocumentField = errors.New("unsupported focument field")
 )
 
 type DocumentFieldType string
@@ -44,26 +45,32 @@ func MarshalDocument(input any) (*Document, error) {
 	fields := make(map[string]DocumentField)
 
 	for key, value := range tempMap {
-		fields[key] = DocumentField{Type: defineType(value), Value: value}
+		fieldType, err := defineType(value)
+
+		if err != nil {
+			return nil, err
+		}
+
+		fields[key] = DocumentField{Type: fieldType, Value: value}
 	}
 
 	return &Document{Fields: fields}, nil
 }
 
-func defineType(input any) DocumentFieldType {
+func defineType(input any) (DocumentFieldType, error) {
 	switch input.(type) {
 	case string:
-		return DocumentFieldTypeString
+		return DocumentFieldTypeString, nil
 	case bool:
-		return DocumentFieldTypeBool
+		return DocumentFieldTypeBool, nil
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64:
-		return DocumentFieldTypeNumber
+		return DocumentFieldTypeNumber, nil
 	case []interface{}:
-		return DocumentFieldTypeArray
+		return DocumentFieldTypeArray, nil
 	case interface{}:
-		return DocumentFieldTypeObject
+		return DocumentFieldTypeObject, nil
 	default:
-		return DocumentFieldTypeNumber
+		return "", ErrUnsupportedDocumentField
 	}
 }
 
