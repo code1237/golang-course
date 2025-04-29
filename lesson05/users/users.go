@@ -6,13 +6,16 @@ import (
 	"golang-course/lesson05/document_store"
 )
 
+const (
+	PrimaryKey          string = "id"
+	PrimaryKeyValue     string = "1"
+	PrimaryKeyValueTwo  string = "2"
+	CollectionUsersName string = "users"
+)
+
 var (
 	ErrUserNotFound      = errors.New("user not found")
 	ErrUserAlreadyExists = errors.New("user already exists")
-)
-
-const (
-	CollectionUsersName string = "users"
 )
 
 type User struct {
@@ -25,14 +28,17 @@ type Service struct {
 }
 
 func NewService(store *document_store.Store) *Service {
-	coll, err := store.GetCollection(CollectionUsersName)
+	usersCollection, err := store.GetCollection(CollectionUsersName)
 
 	if err != nil {
-		panic(fmt.Errorf("%w:%s during creation of users service", err, CollectionUsersName))
+		err, usersCollection = store.CreateCollection(CollectionUsersName, &document_store.CollectionConfig{PrimaryKey: PrimaryKey})
+		if err != nil {
+			panic(fmt.Errorf("%w:%s during creation of users service", err, CollectionUsersName))
+		}
 	}
 
 	service := &Service{
-		coll: coll,
+		coll: usersCollection,
 	}
 
 	return service

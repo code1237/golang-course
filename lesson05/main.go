@@ -6,13 +6,6 @@ import (
 	"golang-course/lesson05/users"
 )
 
-const (
-	PrimaryKey          string = "id"
-	PrimaryKeyValue     string = "1"
-	PrimaryKeyValueTwo  string = "2"
-	CollectionUsersName string = "users"
-)
-
 func main() {
 	defer func() {
 		if r := recover(); r != nil {
@@ -22,27 +15,15 @@ func main() {
 
 	store := documentstore.NewStore()
 
-	err, _ := store.CreateCollection(CollectionUsersName, &documentstore.CollectionConfig{PrimaryKey: PrimaryKey})
-
-	if err != nil {
-		fmt.Printf("New collection created: %s\n", CollectionUsersName)
-	}
-
-	_, err = store.GetCollection(CollectionUsersName)
-
-	if err == nil {
-		fmt.Printf("Collection was found in store by name %s\n", CollectionUsersName)
-	}
-
 	usersService := users.NewService(store)
 
 	testUsers := []users.User{
-		{ID: PrimaryKeyValue, Name: "Go"},
-		{ID: PrimaryKeyValueTwo, Name: "Go2"},
+		{ID: users.PrimaryKeyValue, Name: "Go"},
+		{ID: users.PrimaryKeyValueTwo, Name: "Go2"},
 	}
 
 	for _, user := range testUsers {
-		if _, err = usersService.CreateUser(user); err != nil {
+		if _, err := usersService.CreateUser(user); err != nil {
 			fmt.Printf("Failed to create user: %s\n", user.Name)
 			return
 		}

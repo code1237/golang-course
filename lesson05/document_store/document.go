@@ -42,7 +42,7 @@ func MarshalDocument(input any) (*Document, error) {
 		return nil, err
 	}
 
-	fields := make(map[string]DocumentField)
+	fields := make(map[string]DocumentField, len(tempMap))
 
 	for key, value := range tempMap {
 		fieldType, err := defineType(value)
