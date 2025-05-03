@@ -1,4 +1,12 @@
-package documentstore
+package document_store
+
+import "errors"
+
+var (
+	ErrCollectionAlreadyExists   = errors.New("collection already exists")
+	ErrCollectionNotFound        = errors.New("collection not found")
+	ErrCollectionNameCantBeEmpty = errors.New("collection name can not be empty")
+)
 
 type Collection struct {
 	cfg       CollectionConfig
@@ -30,12 +38,12 @@ func (s *Collection) Put(doc Document) {
 	return
 }
 
-func (s *Collection) Get(key string) (*Document, bool) {
+func (s *Collection) Get(key string) (*Document, error) {
 	if doc, ok := s.documents[key]; ok {
-		return &doc, true
+		return &doc, nil
 	}
 
-	return nil, false
+	return nil, ErrDocumentNotFound
 }
 
 func (s *Collection) Delete(key string) bool {
