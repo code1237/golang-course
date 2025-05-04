@@ -1,6 +1,9 @@
 package document_store
 
-import "errors"
+import (
+	"errors"
+	"log/slog"
+)
 
 var (
 	ErrCollectionAlreadyExists   = errors.New("collection already exists")
@@ -35,6 +38,7 @@ func (s *Collection) Put(doc Document) {
 	}
 
 	s.documents[valueAsString] = doc
+	slog.Info("New document was added", "collection", s.Name, "id", valueAsString)
 	return
 }
 
@@ -49,6 +53,7 @@ func (s *Collection) Get(key string) (*Document, error) {
 func (s *Collection) Delete(key string) bool {
 	if _, ok := s.documents[key]; ok {
 		delete(s.documents, key)
+		slog.Info("Document was deleted", "collection", s.Name, "id", key)
 		return true
 	}
 
@@ -63,4 +68,8 @@ func (s *Collection) List() []Document {
 	}
 
 	return documentsSlice
+}
+
+func (s *Collection) GetConfig() CollectionConfig {
+	return s.cfg
 }
