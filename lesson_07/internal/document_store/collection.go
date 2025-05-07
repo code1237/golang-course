@@ -69,7 +69,3 @@ func (s *Collection) List() []Document {
 
 	return documentsSlice
 }
-
-func (s *Collection) GetConfig() CollectionConfig {
-	return s.cfg
-}
