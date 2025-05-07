@@ -66,6 +66,8 @@ func TestCollection_List(t *testing.T) {
 	testCollection := createTestCollection()
 	documents := testCollection.List()
 	assert.Equal(t, 1, len(documents))
+
+	assert.Equal(t, "1", documents[0].Fields["id"].Value)
 }
 
 func TestCollection_Put(t *testing.T) {
@@ -94,7 +96,7 @@ func TestCollection_Put(t *testing.T) {
 
 func TestCollection_PutWrongDocument(t *testing.T) {
 	type fields struct {
-		Id   string
+		Id   interface{}
 		Type DocumentFieldType
 	}
 
@@ -114,6 +116,20 @@ func TestCollection_PutWrongDocument(t *testing.T) {
 			fields: fields{
 				Id:   "",
 				Type: DocumentFieldTypeNumber,
+			},
+		},
+		{
+			name: "Type casting failed",
+			fields: fields{
+				Id:   2,
+				Type: DocumentFieldTypeString,
+			},
+		},
+		{
+			name: "Without Primary key",
+			fields: fields{
+				Id:   nil,
+				Type: DocumentFieldTypeString,
 			},
 		},
 	}
@@ -138,11 +154,18 @@ func TestCollection_PutWrongDocument(t *testing.T) {
 				},
 			}
 
+			if tt.fields.Id == nil {
+				delete(testDoc.Fields, "id")
+			}
+
 			testCollection.Put(testDoc)
 
-			_, ok := testCollection.documents[tt.fields.Id]
+			key, ok := tt.fields.Id.(string)
 
-			assert.False(t, ok)
+			if ok {
+				_, ok = testCollection.documents[key]
+				assert.False(t, ok)
+			}
 		})
 	}
 }
