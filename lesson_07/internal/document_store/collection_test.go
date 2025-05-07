@@ -21,6 +21,10 @@ func createTestCollection() *Collection {
 						Type:  DocumentFieldTypeString,
 						Value: "Go",
 					},
+					"age": {
+						Type:  DocumentFieldTypeNumber,
+						Value: float64(34),
+					},
 				},
 			},
 		},
@@ -77,6 +81,10 @@ func TestCollection_Put(t *testing.T) {
 				Type:  DocumentFieldTypeString,
 				Value: "Go2",
 			},
+			"age": {
+				Type:  DocumentFieldTypeNumber,
+				Value: 34,
+			},
 		},
 	}
 
@@ -122,6 +130,10 @@ func TestCollection_PutWrongDocument(t *testing.T) {
 					"name": {
 						Type:  DocumentFieldTypeString,
 						Value: "Go2",
+					},
+					"age": {
+						Type:  DocumentFieldTypeNumber,
+						Value: 34,
 					},
 				},
 			}
