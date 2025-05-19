@@ -1,0 +1,1 @@
+{"orders":{"documents":{}},"users":{"documents":{"1":{"age":32,"id":"1","name":"Go"},"2":{"age":25,"id":"2","name":"Lang"}}}}

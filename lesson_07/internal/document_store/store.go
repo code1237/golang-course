@@ -106,7 +106,7 @@ func (s *Store) Dump() ([]byte, error) {
 				documentFields[fieldKey] = fieldData.Value
 			}
 
-			documentsMap[document.Fields[collection.GetConfig().PrimaryKey].Value.(string)] = documentFields
+			documentsMap[document.Fields[collection.cfg.PrimaryKey].Value.(string)] = documentFields
 		}
 
 		dumpMap[name] = dumpDTO{Documents: documentsMap, Config: collection.cfg}

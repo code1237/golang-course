@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	documentstore "golang-course/lesson06/document_store"
-	"golang-course/lesson06/users"
+	"golang-course/lesson_07/internal/document_store"
+	"golang-course/lesson_07/internal/users"
 	"log/slog"
 	"os"
 )
@@ -18,7 +18,7 @@ func main() {
 		}
 	}()
 
-	store, err := documentstore.NewStoreFromFile("dump.txt")
+	store, err := document_store.NewStoreFromFile("dump.txt")
 
 	if err != nil {
 		fmt.Println("Error in NewStoreFromDump", err)
@@ -35,7 +35,7 @@ func main() {
 
 	fmt.Printf("%+v\n", usersList)
 
-	if err, _ = store.CreateCollection("orders", &documentstore.CollectionConfig{PrimaryKey: "id"}); err != nil {
+	if err, _ = store.CreateCollection("orders", &document_store.CollectionConfig{PrimaryKey: "id"}); err != nil {
 		fmt.Printf("Failed to create collection: %s\n", err)
 	}
 
