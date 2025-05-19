@@ -1,1 +1,1 @@
-{"users":{"documents":{"1":{"age":32,"id":"1","name":"Go"},"2":{"age":25,"id":"2","name":"Lang"}}}}
+{"users":{"documents":{"1":{"age":34,"id":"1","name":"Go"},"2":{"age":25,"id":"2","name":"Lang"}},"config":{"primary_key":"id"}}}

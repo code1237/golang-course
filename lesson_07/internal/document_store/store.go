@@ -7,9 +7,10 @@ import (
 	"os"
 )
 
-const (
-	DocumentsDumpKey = "documents"
-)
+type dumpDTO struct {
+	Documents map[string]any   `json:"documents"`
+	Config    CollectionConfig `json:"config"`
+}
 
 type Store struct {
 	collections map[string]*Collection
@@ -67,25 +68,22 @@ func (s *Store) DeleteCollection(name string) error {
 func NewStoreFromDump(dump []byte) (*Store, error) {
 	var storeCollections = make(map[string]*Collection)
 
-	var tempCollections map[string]map[string]any
+	var tempCollections map[string]dumpDTO
 	if err := json.Unmarshal(dump, &tempCollections); err != nil {
-
 		return nil, fmt.Errorf("error unmarshalling dump: %w", err)
 	}
 
-	for name, collection := range tempCollections {
+	for name, dump := range tempCollections {
 		documents := make(map[string]Document)
 
-		if docs, ok := collection[DocumentsDumpKey]; ok {
-			for primaryKey, data := range docs.(map[string]any) {
-				if document, err := MarshalDocument(data); err == nil {
-					documents[primaryKey] = *document
-				}
+		for primaryKey, data := range dump.Documents {
+			if document, err := MarshalDocument(data); err == nil {
+				documents[primaryKey] = *document
 			}
 		}
 
 		storeCollections[name] = &Collection{
-			CollectionConfig{PrimaryKey: "id"},
+			dump.Config,
 			name,
 			documents,
 		}
@@ -97,7 +95,7 @@ func NewStoreFromDump(dump []byte) (*Store, error) {
 }
 
 func (s *Store) Dump() ([]byte, error) {
-	var dumpMap = make(map[string]map[string]any)
+	var dumpMap = make(map[string]dumpDTO)
 
 	for name, collection := range s.collections {
 		var documentsMap = make(map[string]any)
@@ -111,8 +109,7 @@ func (s *Store) Dump() ([]byte, error) {
 			documentsMap[document.Fields[collection.cfg.PrimaryKey].Value.(string)] = documentFields
 		}
 
-		dumpMap[name] = make(map[string]any)
-		dumpMap[name][DocumentsDumpKey] = documentsMap
+		dumpMap[name] = dumpDTO{Documents: documentsMap, Config: collection.cfg}
 	}
 
 	return json.Marshal(dumpMap)
