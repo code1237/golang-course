@@ -3,7 +3,7 @@ package users
 import (
 	"errors"
 	"fmt"
-	"golang-course/lesson05/document_store"
+	"golang-course/lesson06/document_store"
 )
 
 const (
@@ -21,6 +21,7 @@ var (
 type User struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
+	Age  int    `json:"age"`
 }
 
 type Service struct {
