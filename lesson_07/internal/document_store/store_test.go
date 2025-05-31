@@ -8,7 +8,7 @@ import (
 
 const (
 	DumpFileName = "dumpTest.txt"
-	Dump         = `{"users":{"documents":{"1":{"age":34,"id":"1","name":"Go"}}}}`
+	Dump         = `{"users":{"documents":{"1":{"age":34,"id":"1","name":"Go"}},"config":{"primary_key":"id"}}}`
 )
 
 func createTestStore() *Store {
