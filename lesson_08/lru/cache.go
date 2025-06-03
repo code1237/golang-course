@@ -1,9 +1,5 @@
 package lru
 
-import (
-	"time"
-)
-
 type LruCache interface {
 	Put(key, value string)
 	Get(key string) (string, bool)
@@ -11,106 +7,129 @@ type LruCache interface {
 
 type Cache struct {
 	capacity int
-	list     List
+	Head     *Node
+	Tail     *Node
+	dataMap  map[string]*Node
 }
 
-type List struct {
-	Head *ListItem
-}
-
-func (l *Cache) Put(key, value string) {
-	if l.list.Head == nil {
-		l.list.Head = &ListItem{
-			Key:    key,
-			Value:  value,
-			Next:   nil,
-			Prev:   nil,
-			ReadAt: time.Now(),
-		}
-
-		return
-	}
-
-	listLength := 0
-
-	current := l.list.Head
-
-	for i := 0; i < l.capacity; i++ {
-		listLength++
-
-		if current.Key == key {
-			if listLength == 1 {
-				l.list.Head.ReadAt = time.Now()
-				l.list.Head.Value = value
-				return
-			}
-
-			currentNext := current.Next
-			tempHead := l.list.Head
-			l.list.Head = &ListItem{
-				Key:    key,
-				Value:  value,
-				Next:   tempHead,
-				Prev:   nil,
-				ReadAt: time.Now(),
-			}
-
-			tempHead.Next = currentNext
-			tempHead.Prev = l.list.Head
-
-			return
-		}
-
-		if current.Next != nil {
-			current = current.Next
-			continue
-		}
-
-		break
-	}
-
-	tempHead := l.list.Head
-	l.list.Head = &ListItem{
-		Key:    key,
-		Value:  value,
-		Next:   tempHead,
-		Prev:   nil,
-		ReadAt: time.Now(),
-	}
-
-	tempHead.Prev = l.list.Head
-
-	if listLength >= l.capacity {
-		current.Prev.Next = nil
-	}
-}
-
-func (l *Cache) Get(key string) (string, bool) {
-	current := l.list.Head
-
-	for i := 0; i < l.capacity; i++ {
-		if current.Key == key {
-			l.Put(key, current.Value)
-			return current.Value, true
-		}
-
-		current = current.Next
-	}
-
-	return "", false
-}
-
-type ListItem struct {
-	Key    string
-	Value  string
-	Next   *ListItem
-	Prev   *ListItem
-	ReadAt time.Time
+type Node struct {
+	Key   string
+	Value string
+	Next  *Node
+	Prev  *Node
 }
 
 func NewLruCache(capacity int) LruCache {
+	if capacity <= 0 {
+		panic("capacity must be positive")
+	}
+
 	return &Cache{
 		capacity: capacity,
-		list:     List{nil},
+		Head:     nil,
+		Tail:     nil,
+		dataMap:  make(map[string]*Node, capacity),
 	}
+}
+
+func (c *Cache) Put(key, value string) {
+	currentCacheCapacity := len(c.dataMap)
+
+	existingNodeByKey, ok := c.dataMap[key]
+
+	currentHead := c.Head
+
+	if ok {
+		c.Head = existingNodeByKey
+
+		tempNext := existingNodeByKey.Next
+		tempPrev := existingNodeByKey.Prev
+
+		if tempPrev != nil {
+			tempPrev.Next = tempNext
+		}
+
+		if tempNext != nil {
+			tempNext.Prev = tempPrev
+		}
+
+		existingNodeByKey.Value = value
+		existingNodeByKey.Next = currentHead
+		existingNodeByKey.Prev = nil
+
+		if existingNodeByKey == c.Tail {
+			c.Tail = tempPrev
+		}
+	} else {
+		if currentCacheCapacity+1 > c.capacity {
+			if c.Tail == nil {
+				panic("Tail is empty")
+			}
+
+			tailNode, ok := c.dataMap[c.Tail.Key]
+
+			if !ok {
+				panic("Tail node not found")
+			}
+
+			tempPrev := tailNode.Prev
+
+			if tempPrev != nil {
+				tempPrev.Next = nil
+				c.Tail = tempPrev
+			}
+
+			delete(c.dataMap, tailNode.Key)
+		}
+
+		newNode := &Node{
+			Key:   key,
+			Value: value,
+			Next:  currentHead,
+			Prev:  nil,
+		}
+		c.dataMap[key] = newNode
+		c.Head = newNode
+
+		if currentHead != nil {
+			currentHead.Prev = newNode
+		}
+
+		if c.Tail == nil {
+			c.Tail = newNode
+		}
+	}
+}
+
+func (c *Cache) Get(key string) (string, bool) {
+	existingNodeByKey, ok := c.dataMap[key]
+
+	if !ok {
+		return "", false
+	}
+
+	if c.Head != existingNodeByKey {
+		currentHead := c.Head
+		c.Head = existingNodeByKey
+
+		tempNext := existingNodeByKey.Next
+		tempPrev := existingNodeByKey.Prev
+
+		if tempPrev != nil {
+			tempPrev.Next = tempNext
+		}
+
+		if tempNext != nil {
+			tempNext.Prev = tempPrev
+		}
+
+		existingNodeByKey.Next = currentHead
+		existingNodeByKey.Prev = nil
+
+		if existingNodeByKey == c.Tail {
+			c.Tail = tempPrev
+		}
+	}
+
+	return existingNodeByKey.Value, true
 }
