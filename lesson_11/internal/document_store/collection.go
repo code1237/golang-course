@@ -47,8 +47,8 @@ func (s *Collection) Put(doc Document) {
 }
 
 func (s *Collection) Get(key string) (*Document, error) {
-	s.mx.Lock()
-	defer s.mx.Unlock()
+	s.mx.RLock()
+	defer s.mx.RUnlock()
 
 	if doc, ok := s.documents[key]; ok {
 		return &doc, nil
@@ -60,6 +60,7 @@ func (s *Collection) Get(key string) (*Document, error) {
 func (s *Collection) Delete(key string) bool {
 	s.mx.Lock()
 	defer s.mx.Unlock()
+
 	if _, ok := s.documents[key]; ok {
 		delete(s.documents, key)
 		slog.Info("Document was deleted", "collection", s.Name, "id", key)
