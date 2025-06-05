@@ -14,7 +14,7 @@ type dumpDTO struct {
 }
 
 type Store struct {
-	mx          sync.Mutex
+	mx          sync.RWMutex
 	collections map[string]*Collection
 }
 
@@ -31,8 +31,11 @@ func (s *Store) CreateCollection(name string, cfg *CollectionConfig) (error, *Co
 		return ErrCollectionNameCantBeEmpty, nil
 	}
 
-	s.mx.Lock()
-	if _, ok := s.collections[name]; ok {
+	s.mx.RLock()
+	_, ok := s.collections[name]
+	s.mx.RUnlock()
+
+	if ok {
 		return ErrCollectionAlreadyExists, nil
 	}
 
@@ -42,6 +45,7 @@ func (s *Store) CreateCollection(name string, cfg *CollectionConfig) (error, *Co
 		documents: make(map[string]Document),
 	}
 
+	s.mx.Lock()
 	s.collections[name] = newCollection
 	s.mx.Unlock()
 
@@ -51,9 +55,9 @@ func (s *Store) CreateCollection(name string, cfg *CollectionConfig) (error, *Co
 }
 
 func (s *Store) GetCollection(name string) (*Collection, error) {
-	s.mx.Lock()
+	s.mx.RLock()
 	collection, ok := s.collections[name]
-	s.mx.Unlock()
+	s.mx.RUnlock()
 
 	if !ok {
 		return nil, ErrCollectionNotFound
@@ -63,6 +67,9 @@ func (s *Store) GetCollection(name string) (*Collection, error) {
 }
 
 func (s *Store) DeleteCollection(name string) error {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+
 	if _, ok := s.collections[name]; ok {
 		delete(s.collections, name)
 		slog.Info("Collection deleted", "name", name)
@@ -94,7 +101,6 @@ func NewStoreFromDump(dump []byte) (*Store, error) {
 			Name:      name,
 			documents: documents,
 		}
-
 	}
 
 	return &Store{collections: storeCollections}, nil
@@ -103,6 +109,9 @@ func NewStoreFromDump(dump []byte) (*Store, error) {
 
 func (s *Store) Dump() ([]byte, error) {
 	var dumpMap = make(map[string]dumpDTO)
+
+	s.mx.RLock()
+	defer s.mx.RUnlock()
 
 	for name, collection := range s.collections {
 		var documentsMap = make(map[string]any)

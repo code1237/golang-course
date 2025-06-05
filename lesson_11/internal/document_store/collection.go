@@ -13,7 +13,7 @@ var (
 )
 
 type Collection struct {
-	mx        sync.Mutex
+	mx        sync.RWMutex
 	cfg       CollectionConfig
 	Name      string
 	documents map[string]Document
@@ -70,6 +70,9 @@ func (s *Collection) Delete(key string) bool {
 }
 
 func (s *Collection) List() []Document {
+	s.mx.RLock()
+	defer s.mx.RUnlock()
+
 	documentsSlice := make([]Document, 0, len(s.documents))
 
 	for _, doc := range s.documents {
