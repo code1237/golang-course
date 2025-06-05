@@ -13,7 +13,7 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 1001; i++ {
 		wg.Add(1)
 		go func(store *document_store2.Store, i int) {
 			defer wg.Done()
